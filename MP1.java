@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,9 +52,49 @@ public class MP1 {
     }
 
     public String[] process() throws Exception {
+        BufferedReader file = new BufferedReader(new FileReader(this.inputFileName));
+        HashMap<String,Integer> counts = new HashMap<String,Integer>();
+        ArrayList<String> lines = new ArrayList<>();
+
+        String l;
+        while((l = file.readLine()) != null) {
+          lines.add(l.toLowerCase().trim());
+        }
+
+        Integer[] idxs = getIndexes();
+        for(int i = 0; i < idxs.length; i++) {
+          String line = lines.get(idxs[i]);
+          StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
+          while(tokenizer.hasMoreTokens()) {
+            String word = tokenizer.nextToken();
+
+            if(!Arrays.asList(stopWordsArray).contains(word)) { 
+              int c = 0;
+              if(counts.containsKey(word)) {
+                c = counts.get(word) + 1;
+              }
+              counts.put(word, c);
+            }
+          }
+
+        }
+
+        Set<Map.Entry<String, Integer>> set = counts.entrySet();
+        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(set);
+        Collections.sort( list, new Comparator<Map.Entry<String, Integer>>() {
+          public int compare( Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+            int x = o2.getValue().compareTo( o1.getValue() );
+            if(x == 0) {
+              x = o1.getKey().compareTo(o2.getKey());
+            }
+            return x;
+          }
+        });
+
         String[] ret = new String[20];
-       
-        //TODO
+        for(int i = 0; i < ret.length; i++) {
+          ret[i] = list.get(i).getKey();
+        }
 
         return ret;
     }
